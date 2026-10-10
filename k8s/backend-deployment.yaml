@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: cloud-nativetaskmanager-backend:latest
+          image: amar0007/cloudtask-backend:sha-5522d6d9e2b0eae13d6277c36dad00a4c8061e52
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
