@@ -1,0 +1,56 @@
+
+name: CloudTask CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install backend dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Check backend syntax
+        working-directory: server
+        run: |
+          node --check server.js
+          node --check routes/tasks.js
+          node --check models/Task.js
+
+      - name: Install frontend dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: client
+        run: npm run build
+
+  docker-build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -t cloudtask-backend:ci ./server
+
+      - name: Build frontend image
+        run: docker build -t cloudtask-frontend:ci ./client
